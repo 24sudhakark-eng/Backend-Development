@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard – {{ app_name }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Chart.js (CDN). The app still works without it; charts are simply hidden. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+
+  <!-- Icon sprite (stroke icons, styled by .icon in style.css) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-bar-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+    <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  </svg>
+
+  <div class="app" id="app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <img class="brand-mark" src="{{ url_for('static', filename='assets/logo.svg') }}" alt="" width="36" height="36">
+        <span class="brand-name" id="brandName">{{ app_name }}</span>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-link" href="#dashboard" data-nav="dashboard"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg><span>Dashboard</span></a>
+        <a class="nav-link" href="#products" data-nav="products"><svg class="icon" aria-hidden="true"><use href="#i-package"/></svg><span>Products</span></a>
+        <a class="nav-link" href="#alerts" data-nav="alerts"><svg class="icon" aria-hidden="true"><use href="#i-alert-triangle"/></svg><span>Stock Alerts</span><span class="nav-count" id="navAlertCount" hidden>0</span></a>
+        <a class="nav-link" href="#reports" data-nav="reports"><svg class="icon" aria-hidden="true"><use href="#i-bar-chart"/></svg><span>Reports</span></a>
+        <a class="nav-link" href="#settings" data-nav="settings"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span>Settings</span></a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <a class="nav-link" href="{{ url_for('logout') }}"><svg class="icon" aria-hidden="true"><use href="#i-log-out"/></svg><span>Logout</span></a>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- ============ MAIN ============ -->
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+          <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+
+        <div class="page-heading">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageDesc">A live summary of your inventory.</p>
+        </div>
+
+        <div class="topbar-tools">
+          <label class="search" for="globalSearch">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <span class="sr-only">Search products</span>
+            <input id="globalSearch" type="search" placeholder="Search by ID, name or category" autocomplete="off" spellcheck="false">
+            <kbd aria-hidden="true">/</kbd>
+          </label>
+
+          <button class="icon-btn bell" id="bellBtn" type="button" aria-label="Stock alerts">
+            <svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg>
+            <span class="bell-count" id="bellCount" hidden>0</span>
+          </button>
+
+          <div class="profile">
+            <span class="avatar" id="avatar" aria-hidden="true">A</span>
+            <span class="profile-text"><strong id="profileName">Admin</strong><small>Administrator</small></span>
+          </div>
+
+          <button class="btn btn-primary" id="addBtn" type="button" aria-label="Add Product">
+            <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg><span>Add Product</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content" id="content">
+
+        <!-- ---------- Dashboard ---------- -->
+        <section class="view" data-view="dashboard" aria-label="Dashboard">
+          <div class="stats is-loading" id="stats">
+            <article class="stat-card">
+              <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-package"/></svg></span>
+              <div class="stat-body">
+                <p class="stat-label">Total Products</p>
+                <p class="stat-value skeleton" id="statProducts">000</p>
+                <p class="stat-note">Product records in the catalogue</p>
+              </div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
+              <div class="stat-body">
+                <p class="stat-label">Total Units</p>
+                <p class="stat-value skeleton" id="statUnits">0000</p>
+                <p class="stat-note">Units on hand across all products</p>
+              </div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-tag"/></svg></span>
+              <div class="stat-body">
+                <p class="stat-label">Inventory Value</p>
+                <p class="stat-value skeleton" id="statValue">000000</p>
+                <p class="stat-note">Quantity multiplied by unit price</p>
+              </div>
+            </article>
+            <article class="stat-card stat-card--warn" id="lowStatCard">
+              <span class="stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert-triangle"/></svg></span>
+              <div class="stat-body">
+                <p class="stat-label">Low Stock Items</p>
+                <p class="stat-value skeleton" id="statLow">00</p>
+                <p class="stat-note" id="statLowNote">Products at or below the threshold</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="grid-2">
+            <section class="card" aria-labelledby="overviewTitle">
+              <header class="card-head">
+                <div>
+                  <h2 id="overviewTitle">Stock overview</h2>
+                  <p>Products grouped by availability</p>
+                </div>
+              </header>
+              <div class="overview">
+                <div class="chart-box" id="stockChartBox">
+                  <canvas id="stockChart" role="img" aria-label="Doughnut chart of in stock, low stock and out of stock products"></canvas>
+                  <div class="chart-center"><strong id="chartTotal">0</strong><span>products</span></div>
+                </div>
+                <ul class="legend" id="stockLegend"></ul>
+              </div>
+              <p class="chart-note" id="stockChartNote" hidden>The chart library could not be loaded (are you offline?). The figures on the right are still live.</p>
+            </section>
+
+            <section class="card" aria-labelledby="alertsTitle">
+              <header class="card-head">
+                <div>
+                  <h2 id="alertsTitle">Stock alerts</h2>
+                  <p id="alertsSummary">Checking stock levels…</p>
+                </div>
+                <a class="link" href="#alerts">View all</a>
+              </header>
+              <ul class="alert-list" id="dashAlerts"></ul>
+            </section>
+          </div>
+        </section>
+
+        <!-- ---------- Products ---------- -->
+        <section class="view" data-view="products" aria-label="Products" hidden>
+          <div class="card card-flush">
+            <div class="toolbar">
+              <div class="toolbar-filters">
+                <label class="select">
+                  <span class="sr-only">Filter by category</span>
+                  <select id="filterCategory"><option value="">All categories</option></select>
+                </label>
+                <label class="select">
+                  <span class="sr-only">Filter by status</span>
+                  <select id="filterStatus">
+                    <option value="">All statuses</option>
+                    <option value="in_stock">In stock</option>
+                    <option value="low_stock">Low stock</option>
+                    <option value="out_of_stock">Out of stock</option>
+                  </select>
+                </label>
+                <button class="btn btn-ghost btn-sm" id="clearFilters" type="button" hidden>Clear filters</button>
+              </div>
+              <p class="result-count" id="resultCount" aria-live="polite"></p>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table" id="productsTable">
+                <thead>
+                  <tr>
+                    <th scope="col" aria-sort="none" data-col="name"><button class="sort" type="button" data-sort="name">Product</button></th>
+                    <th scope="col" aria-sort="none" data-col="category"><button class="sort" type="button" data-sort="category">Category</button></th>
+                    <th scope="col" aria-sort="none" data-col="quantity"><button class="sort" type="button" data-sort="quantity">Stock</button></th>
+                    <th scope="col" aria-sort="none" data-col="price" class="num"><button class="sort" type="button" data-sort="price">Price</button></th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="actions-head">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+              </table>
+            </div>
+            <div class="state" id="productsState" hidden></div>
+          </div>
+        </section>
+
+        <!-- ---------- Stock alerts ---------- -->
+        <section class="view" data-view="alerts" aria-label="Stock alerts" hidden>
+          <div class="card">
+            <header class="card-head">
+              <div>
+                <h2>Products needing attention</h2>
+                <p id="alertsPageSummary">Checking stock levels…</p>
+              </div>
+            </header>
+            <ul class="alert-list alert-list--full" id="alertsList"></ul>
+          </div>
+        </section>
+
+        <!-- ---------- Reports ---------- -->
+        <section class="view" data-view="reports" aria-label="Reports" hidden>
+          <div class="report-actions">
+            <a class="btn btn-secondary" id="exportBtn" href="{{ url_for('export_csv') }}" download>
+              <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg><span>Export CSV</span>
+            </a>
+          </div>
+
+          <div class="figures">
+            <div class="figure"><p>Total inventory value</p><strong id="repValue">–</strong></div>
+            <div class="figure"><p>Total products</p><strong id="repProducts">–</strong></div>
+            <div class="figure figure--warn"><p>Low-stock products</p><strong id="repLow">–</strong></div>
+            <div class="figure figure--danger"><p>Out-of-stock products</p><strong id="repOut">–</strong></div>
+          </div>
+
+          <div class="grid-2">
+            <section class="card" aria-labelledby="catChartTitle">
+              <header class="card-head"><div><h2 id="catChartTitle">Products by category</h2><p>Number of products in each category</p></div></header>
+              <div class="chart-box chart-box--bars" id="categoryChartBox">
+                <canvas id="categoryChart" role="img" aria-label="Bar chart of product count per category"></canvas>
+              </div>
+              <p class="chart-note" id="categoryChartNote" hidden>The chart library could not be loaded. The category table shows the same data.</p>
+            </section>
+
+            <section class="card card-flush" aria-labelledby="catTableTitle">
+              <header class="card-head card-head--pad"><div><h2 id="catTableTitle">Category breakdown</h2><p>Units and value per category</p></div></header>
+              <div class="table-wrap">
+                <table class="table table-compact" id="categoryTable">
+                  <thead><tr><th scope="col">Category</th><th scope="col" class="num">Products</th><th scope="col" class="num">Units</th><th scope="col" class="num">Value</th></tr></thead>
+                  <tbody id="categoryBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ---------- Settings ---------- -->
+        <section class="view" data-view="settings" aria-label="Settings" hidden>
+          <form id="settingsForm" class="settings" novalidate>
+            <section class="card">
+              <header class="card-head"><div><h2>Application</h2><p>Name and currency shown across the dashboard</p></div></header>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="sApp">Application name</label>
+                  <input id="sApp" name="app_name" type="text" maxlength="40" autocomplete="off" aria-describedby="err-app_name">
+                  <p class="field-error" id="err-app_name"></p>
+                </div>
+                <div class="field">
+                  <label for="sCurrency">Currency</label>
+                  <select id="sCurrency" name="currency" aria-describedby="err-currency">
+                    <option value="INR">INR – Indian Rupee (₹)</option>
+                    <option value="USD">USD – US Dollar ($)</option>
+                    <option value="EUR">EUR – Euro (€)</option>
+                    <option value="GBP">GBP – Pound Sterling (£)</option>
+                  </select>
+                  <p class="field-error" id="err-currency"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <header class="card-head"><div><h2>Inventory rules</h2><p>Controls when a product is flagged</p></div></header>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="sThreshold">Low-stock threshold (units)</label>
+                  <input id="sThreshold" name="low_stock_threshold" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="hint-threshold err-low_stock_threshold">
+                  <p class="field-hint" id="hint-threshold">Products with 1 to this many units are marked Low Stock. Zero units is always Out of Stock.</p>
+                  <p class="field-error" id="err-low_stock_threshold"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <header class="card-head"><div><h2>Admin profile</h2><p>Shown in the top bar</p></div></header>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="sAdminName">Display name</label>
+                  <input id="sAdminName" name="admin_name" type="text" maxlength="60" autocomplete="off" aria-describedby="err-admin_name">
+                  <p class="field-error" id="err-admin_name"></p>
+                </div>
+                <div class="field">
+                  <label for="sAdminEmail">Email</label>
+                  <input id="sAdminEmail" type="email" readonly aria-readonly="true" class="is-readonly">
+                  <p class="field-hint">The sign-in email is fixed for this demo.</p>
+                </div>
+              </div>
+            </section>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="saveSettings">Save changes</button>
+            </div>
+          </form>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT PRODUCT ============ -->
+  <dialog class="dialog" id="productDialog" aria-labelledby="productDialogTitle">
+    <form id="productForm" novalidate>
+      <header class="dialog-head">
+        <h2 id="productDialogTitle">Add Product</h2>
+        <button class="icon-btn" type="button" data-close aria-label="Close dialog"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </header>
+
+      <div class="dialog-body">
+        <div class="form-banner" id="productFormError" role="alert" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-alert-circle"/></svg>
+          <span id="productFormErrorText"></span>
+        </div>
+
+        <div class="field">
+          <label for="fProductId">Product ID</label>
+          <input id="fProductId" name="product_id" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="e.g. P1013" aria-describedby="hint-pid err-product_id">
+          <p class="field-hint" id="hint-pid">Must be unique. It cannot be changed later.</p>
+          <p class="field-error" id="err-product_id"></p>
+        </div>
+
+        <div class="field">
+          <label for="fName">Product Name</label>
+          <input id="fName" name="name" type="text" maxlength="100" autocomplete="off" placeholder="e.g. Dell Monitor" aria-describedby="err-name">
+          <p class="field-error" id="err-name"></p>
+        </div>
+
+        <div class="field">
+          <label for="fCategory">Category</label>
+          <input id="fCategory" name="category" type="text" maxlength="50" list="categoryList" autocomplete="off" placeholder="e.g. Monitors" aria-describedby="err-category">
+          <datalist id="categoryList"></datalist>
+          <p class="field-error" id="err-category"></p>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="fQuantity">Quantity</label>
+            <input id="fQuantity" name="quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="0" aria-describedby="err-quantity">
+            <p class="field-error" id="err-quantity"></p>
+          </div>
+          <div class="field">
+            <label for="fPrice">Price (<span data-currency-symbol>₹</span>)</label>
+            <input id="fPrice" name="price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-describedby="err-price">
+            <p class="field-error" id="err-price"></p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-foot">
+        <button class="btn btn-secondary" type="button" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit" id="productSubmit">Add Product</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- ============ DELETE CONFIRMATION ============ -->
+  <dialog class="dialog dialog-sm" id="deleteDialog" aria-labelledby="deleteTitle" aria-describedby="deleteText">
+    <div class="dialog-body confirm">
+      <span class="confirm-icon"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></span>
+      <h2 id="deleteTitle">Delete product</h2>
+      <p id="deleteText">Are you sure you want to delete this product?</p>
+      <p class="confirm-target" id="deleteTarget"></p>
+    </div>
+    <footer class="dialog-foot dialog-foot--center">
+      <button class="btn btn-secondary" type="button" data-close>Cancel</button>
+      <button class="btn btn-danger" type="button" id="confirmDelete">Delete</button>
+    </footer>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <noscript><p class="noscript">StockFlow needs JavaScript to load inventory data.</p></noscript>
+</body>
+</html>

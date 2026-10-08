@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in – {{ app_name }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-body">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+    <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+  </svg>
+
+  <main class="login-shell">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <div class="login-brand">
+        <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="" width="40" height="40">
+        <span>{{ app_name }}</span>
+      </div>
+
+      <h1 id="loginTitle">Sign in to your account</h1>
+      <p class="login-sub">Manage products, stock levels and reports in one place.</p>
+
+      <div class="form-banner" id="loginError" role="alert" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#i-alert-circle"/></svg>
+        <span id="loginErrorText"></span>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" placeholder="you@company.com" aria-describedby="err-email" required>
+          <p class="field-error" id="err-email" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-group">
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" aria-describedby="err-password" required>
+            <button type="button" class="input-addon" id="togglePassword" aria-label="Show password" aria-pressed="false">
+              <svg class="icon" aria-hidden="true"><use href="#i-eye" id="toggleIcon"/></svg>
+            </button>
+          </div>
+          <p class="field-error" id="err-password" aria-live="polite"></p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="remember" name="remember">
+          <span>Remember me</span>
+        </label>
+
+        <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Sign In</button>
+      </form>
+
+      <div class="demo-hint">
+        <p>Demo account: <strong>admin@stockflow.com</strong> / <strong>admin123</strong></p>
+        <button type="button" class="link-btn" id="fillDemo">Fill demo credentials</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>
